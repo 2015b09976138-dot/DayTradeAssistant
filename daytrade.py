@@ -429,23 +429,30 @@ for symbol in stocks:
         if breakout_ok:
             score += 3
 
-        if rsi > 60:
+        if rsi > 70:
             score += 3
+        elif rsi > 60:
+            score += 2
+        elif rsi > 50:
+            score += 1
 
         if macd > signal:
             score += 3
         if symbol == "8996.TW":
-            print("========== 高力 ==========")
-            print("close =", close)
-            print("ma5 =", ma5)
-            print("ma20 =", ma20)
-            print("volume =", volume)
-            print("vol5 =", vol5)
-            print("high20 =", high20)
-            print("rsi =", rsi)
-            print("macd =", macd)
-            print("signal =", signal)
-            print("score =", score)
+    print("========== 高力 ==========")
+
+    print(df.tail(5)[["Open","High","Low","Close","Volume"]])
+
+    print("close =", close)
+    print("ma5 =", ma5)
+    print("ma20 =", ma20)
+    print("volume =", volume)
+    print("vol5 =", vol5)
+    print("high20 =", high20)
+    print("rsi =", rsi)
+    print("macd =", macd)
+    print("signal =", signal)
+    print("score =", score)
         stop_loss = round(
             close * 0.99,
             2
