@@ -5,6 +5,9 @@ on:
     - cron: '55 0 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   run-stockbot:
     runs-on: ubuntu-latest
@@ -28,3 +31,14 @@ jobs:
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
         run: |
           python daytrade.py
+
+      - name: Commit Trade Log
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git add trade_log.csv
+
+          git commit -m "Update trade log" || echo "No changes to commit"
+
+          git push
