@@ -361,26 +361,24 @@ for symbol in stocks:
             high20
         )
 
-        score = 0
+               score = 0
 
-if trend_ok:
-    score += 3
+        if trend_ok:
+            score += 3
 
-if volume_ok:
-    score += 3
+        if volume_ok:
+            score += 3
 
-if breakout_ok:
-    score += 3
+        if breakout_ok:
+            score += 3
 
-if rsi > 60:
-    score += 3
+        if rsi > 60:
+            score += 3
 
-if macd > signal:
-    score += 3
+        if macd > signal:
+            score += 3
 
-        if close > ma20:
-            score += 2
-
+       
         stop_loss = round(
             close * 0.99,
             2
