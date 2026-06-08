@@ -37,19 +37,18 @@ STOCK_NAMES = {
     "2317.TW": "鴻海",
     "2454.TW": "聯發科",
     "2303.TW": "聯電",
-    "2408.TW": "南亞科",
-    "2409.TW": "友達",
-    "3481.TW": "群創",
-    "2353.TW": "宏碁",
-    "2324.TW": "仁寶",
-    "2002.TW": "中鋼",
+    "2382.TW": "廣達",
+    "3231.TW": "緯創",
+    "6669.TW": "緯穎",
+    "3017.TW": "奇鋐",
+    "2376.TW": "技嘉",
+    "2383.TW": "台光電",
     "2603.TW": "長榮",
-    "2615.TW": "萬海",
     "2609.TW": "陽明",
+    "2615.TW": "萬海",
     "2881.TW": "富邦金",
-    "8996.TW": "高力",
-    "2882.TW": "國泰金"
-     
+    "2882.TW": "國泰金",
+    "8996.TW": "高力"
 }
 
 # ====================================
@@ -329,7 +328,8 @@ for symbol in stocks:
         volume = float(
             latest["Volume"]
         )
-
+if volume < 1000000:
+    continue
         vol5 = float(
             latest["VOL5"]
         )
@@ -362,22 +362,22 @@ for symbol in stocks:
             high20
         )
 
-        score = 0
+       score = 0
 
-        if trend_ok:
-            score += 2
+if trend_ok:
+    score += 3
 
-        if volume_ok:
-            score += 2
+if volume_ok:
+    score += 3
 
-        if breakout_ok:
-            score += 2
+if breakout_ok:
+    score += 3
 
-        if rsi > 50:
-            score += 2
+if rsi > 60:
+    score += 3
 
-        if macd > signal:
-            score += 2
+if macd > signal:
+    score += 3
 
         if close > ma20:
             score += 2
@@ -536,18 +536,26 @@ pd.DataFrame(
 # TOP5
 # ====================================
 
-line_msg = "【台股當沖助手 TOP5】\n\n"
+line_msg = (
+    f"【台股當沖助手 v6】\n"
+    f"{today}\n\n"
+)
 
-for item in results[:5]:
+top_stocks = [
+    x for x in results
+    if x["評分"] >= 9
+][:5]
+
+for idx, item in enumerate(top_stocks, start=1):
 
     line_msg += (
-        f"{item['股票']}\n"
-        f"評分:{item['評分']}/12\n"
-        f"現價:{item['現價']}\n"
-        f"RSI:{item['RSI']}\n"
-        f"停損:{item['停損價']}\n"
-        f"停利:{item['停利價']}\n\n"
-    )
+    f"{idx}. {item['股票']}\n"
+    f"評分:{item['評分']}/15\n"
+    f"現價:{item['現價']}\n"
+    f"RSI:{item['RSI']}\n"
+    f"停損:{item['停損價']}\n"
+    f"停利:{item['停利價']}\n\n"
+)
 
 print("\n")
 print(line_msg)
