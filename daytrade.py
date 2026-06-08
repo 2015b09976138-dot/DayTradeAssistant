@@ -361,7 +361,7 @@ for symbol in stocks:
             high20
         )
 
-       score = 0
+        score = 0
 
 if trend_ok:
     score += 3
