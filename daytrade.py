@@ -17,8 +17,16 @@ TAKE_PROFIT_RATIO = 2
 
  
 
-LINE_CHANNEL_ACCESS_TOKEN = os.getenv("vKoWOA87t4eP15fbtbmswL7WHWgiQrG4oYBO3lRfpjRnr/PN0dmGw1uJ24VlSVQGdymUvaw5ZrgH9vyw2UydK4HeXSg0dtDpPVdO0UovhjtqUXn8dRA7NQpB2+tiHJwuXEEotm0/lFKEf4Pr4Kt+YgdB04t89/1O/w1cDnyilFU=")
-LINE_USER_ID = os.getenv("U5cf6fdb24d5e10bdd639a028bb6e4230")
+import os
+
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_TOKEN")
+LINE_USER_ID = os.getenv("LINE_USER_ID")
+
+if not LINE_CHANNEL_ACCESS_TOKEN:
+    raise Exception("找不到 LINE_TOKEN Secret")
+
+if not LINE_USER_ID:
+    raise Exception("找不到 LINE_USER_ID Secret")
 
 # ====================================
 # 股票名稱
