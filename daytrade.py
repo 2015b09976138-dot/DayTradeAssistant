@@ -15,9 +15,10 @@ CAPITAL = 30000
 RISK_PERCENT = 1
 TAKE_PROFIT_RATIO = 2
 
-# LINE 設定
-LINE_CHANNEL_ACCESS_TOKEN = "vKoWOA87t4eP15fbtbmswL7WHWgiQrG4oYBO3lRfpjRnr/PN0dmGw1uJ24VlSVQGdymUvaw5ZrgH9vyw2UydK4HeXSg0dtDpPVdO0UovhjtqUXn8dRA7NQpB2+tiHJwuXEEotm0/lFKEf4Pr4Kt+YgdB04t89/1O/w1cDnyilFU="
-LINE_USER_ID = "U5cf6fdb24d5e10bdd639a028bb6e4230"
+ 
+
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("vKoWOA87t4eP15fbtbmswL7WHWgiQrG4oYBO3lRfpjRnr/PN0dmGw1uJ24VlSVQGdymUvaw5ZrgH9vyw2UydK4HeXSg0dtDpPVdO0UovhjtqUXn8dRA7NQpB2+tiHJwuXEEotm0/lFKEf4Pr4Kt+YgdB04t89/1O/w1cDnyilFU=")
+LINE_USER_ID = os.getenv("U5cf6fdb24d5e10bdd639a028bb6e4230")
 
 # ====================================
 # 股票名稱
@@ -38,9 +39,9 @@ STOCK_NAMES = {
     "2615.TW": "萬海",
     "2609.TW": "陽明",
     "2881.TW": "富邦金",
+    "8996.TW": "高力",
     "2882.TW": "國泰金"
-,
-    "8996.TW": "高力"
+     
 }
 
 # ====================================
