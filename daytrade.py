@@ -434,7 +434,7 @@ for symbol in stocks:
 
         if macd > signal:
             score += 3
-                if symbol == "8996.TW":
+        if symbol == "8996.TW":
             print("========== 高力 ==========")
             print("close =", close)
             print("ma5 =", ma5)
