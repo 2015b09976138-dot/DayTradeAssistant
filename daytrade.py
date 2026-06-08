@@ -2,6 +2,7 @@ import os
 import csv
 import sqlite3
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import requests
@@ -462,9 +463,11 @@ results.sort(
 # 存CSV
 # ====================================
 
-today = datetime.now().strftime(
-    "%Y-%m-%d"
-)
+from zoneinfo import ZoneInfo
+
+today = datetime.now(
+    ZoneInfo("Asia/Taipei")
+).strftime("%Y-%m-%d")
 
 with open(
     "trade_log.csv",
