@@ -328,8 +328,7 @@ for symbol in stocks:
         volume = float(
             latest["Volume"]
         )
-if volume < 1000000:
-    continue
+
         vol5 = float(
             latest["VOL5"]
         )
