@@ -361,7 +361,7 @@ for symbol in stocks:
             high20
         )
 
-               score = 0
+        score = 0
 
         if trend_ok:
             score += 3
@@ -378,7 +378,6 @@ for symbol in stocks:
         if macd > signal:
             score += 3
 
-       
         stop_loss = round(
             close * 0.99,
             2
