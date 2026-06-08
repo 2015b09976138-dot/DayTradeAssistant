@@ -571,5 +571,5 @@ print(
 )
 
 show_statistics()
-
+print(os.path.exists("trade_log.csv"))
 print("\n完成")
