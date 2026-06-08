@@ -434,7 +434,18 @@ for symbol in stocks:
 
         if macd > signal:
             score += 3
-
+                if symbol == "8996.TW":
+            print("========== 高力 ==========")
+            print("close =", close)
+            print("ma5 =", ma5)
+            print("ma20 =", ma20)
+            print("volume =", volume)
+            print("vol5 =", vol5)
+            print("high20 =", high20)
+            print("rsi =", rsi)
+            print("macd =", macd)
+            print("signal =", signal)
+            print("score =", score)
         stop_loss = round(
             close * 0.99,
             2
