@@ -1,0 +1,564 @@
+import os
+import csv
+import sqlite3
+from datetime import datetime
+
+import pandas as pd
+import requests
+import yfinance as yf
+
+# ====================================
+# 基本設定
+# ====================================
+
+CAPITAL = 30000
+RISK_PERCENT = 1
+TAKE_PROFIT_RATIO = 2
+
+# LINE 設定
+LINE_CHANNEL_ACCESS_TOKEN = "vKoWOA87t4eP15fbtbmswL7WHWgiQrG4oYBO3lRfpjRnr/PN0dmGw1uJ24VlSVQGdymUvaw5ZrgH9vyw2UydK4HeXSg0dtDpPVdO0UovhjtqUXn8dRA7NQpB2+tiHJwuXEEotm0/lFKEf4Pr4Kt+YgdB04t89/1O/w1cDnyilFU="
+LINE_USER_ID = "U5cf6fdb24d5e10bdd639a028bb6e4230"
+
+# ====================================
+# 股票名稱
+# ====================================
+
+STOCK_NAMES = {
+    "2330.TW": "台積電",
+    "2317.TW": "鴻海",
+    "2454.TW": "聯發科",
+    "2303.TW": "聯電",
+    "2408.TW": "南亞科",
+    "2409.TW": "友達",
+    "3481.TW": "群創",
+    "2353.TW": "宏碁",
+    "2324.TW": "仁寶",
+    "2002.TW": "中鋼",
+    "2603.TW": "長榮",
+    "2615.TW": "萬海",
+    "2609.TW": "陽明",
+    "2881.TW": "富邦金",
+    "2882.TW": "國泰金"
+,
+    "8996.TW": "高力"
+}
+
+# ====================================
+# LINE 推播
+# ====================================
+
+def send_line_message(message):
+
+    try:
+
+        if "請填入" in LINE_CHANNEL_ACCESS_TOKEN:
+            return "未設定 LINE"
+
+        url = "https://api.line.me/v2/bot/message/push"
+
+        headers = {
+            "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "to": LINE_USER_ID,
+            "messages": [
+                {
+                    "type": "text",
+                    "text": message
+                }
+            ]
+        }
+
+        r = requests.post(
+            url,
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
+
+        return r.status_code
+
+    except Exception as e:
+
+        return str(e)
+
+# ====================================
+# RSI
+# ====================================
+
+def calculate_rsi(series, period=14):
+
+    delta = series.diff()
+
+    gain = delta.where(delta > 0, 0)
+
+    loss = -delta.where(delta < 0, 0)
+
+    avg_gain = gain.rolling(period).mean()
+
+    avg_loss = loss.rolling(period).mean()
+
+    rs = avg_gain / avg_loss
+
+    return 100 - (100 / (1 + rs))
+
+# ====================================
+# SQLite
+# ====================================
+
+def init_database():
+
+    os.makedirs("data", exist_ok=True)
+
+    conn = sqlite3.connect(
+        "data/stocks.db"
+    )
+
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS rankings(
+        trade_date TEXT,
+        stock TEXT,
+        score INTEGER,
+        close REAL
+    )
+    """)
+
+    conn.commit()
+
+    return conn
+
+# ====================================
+# 勝率紀錄
+# ====================================
+
+def init_trade_log():
+
+    if not os.path.exists("trade_log.csv"):
+
+        with open(
+            "trade_log.csv",
+            "w",
+            newline="",
+            encoding="utf-8-sig"
+        ) as f:
+
+            writer = csv.writer(f)
+
+            writer.writerow([
+                "日期",
+                "股票",
+                "評分",
+                "收盤價"
+            ])
+
+# ====================================
+# 統計
+# ====================================
+
+def show_statistics():
+
+    try:
+
+        df = pd.read_csv(
+            "trade_log.csv"
+        )
+
+        print("\n")
+        print("=" * 50)
+        print("歷史統計")
+        print("=" * 50)
+
+        print(
+            "總紀錄數：",
+            len(df)
+        )
+
+        print(
+            "平均評分：",
+            round(
+                df["評分"].mean(),
+                2
+            )
+        )
+
+    except:
+
+        pass
+
+# ====================================
+# 讀取觀察名單
+# ====================================
+
+stocks = []
+
+try:
+
+    with open(
+        "watchlist.txt",
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        for line in f:
+
+            code = line.strip()
+
+            if code:
+
+                stocks.append(
+                    code + ".TW"
+                )
+
+except:
+
+    stocks = list(
+        STOCK_NAMES.keys()
+    )
+
+# ====================================
+# 開始
+# ====================================
+
+conn = init_database()
+
+init_trade_log()
+
+risk_money = (
+    CAPITAL *
+    (RISK_PERCENT / 100)
+)
+
+results = []
+
+print("=" * 60)
+print("台股當沖助手 v5.1")
+print("=" * 60)
+
+for symbol in stocks:
+
+    try:
+
+        df = yf.Ticker(
+            symbol
+        ).history(
+            period="3mo"
+        )
+
+        if len(df) < 30:
+            continue
+
+        df["MA5"] = (
+            df["Close"]
+            .rolling(5)
+            .mean()
+        )
+
+        df["MA20"] = (
+            df["Close"]
+            .rolling(20)
+            .mean()
+        )
+
+        df["VOL5"] = (
+            df["Volume"]
+            .rolling(5)
+            .mean()
+        )
+
+        df["HIGH20"] = (
+            df["High"]
+            .rolling(20)
+            .max()
+            .shift(1)
+        )
+
+        df["EMA12"] = (
+            df["Close"]
+            .ewm(span=12)
+            .mean()
+        )
+
+        df["EMA26"] = (
+            df["Close"]
+            .ewm(span=26)
+            .mean()
+        )
+
+        df["MACD"] = (
+            df["EMA12"]
+            - df["EMA26"]
+        )
+
+        df["SIGNAL"] = (
+            df["MACD"]
+            .ewm(span=9)
+            .mean()
+        )
+
+        df["RSI"] = calculate_rsi(
+            df["Close"]
+        )
+
+        df = df.dropna()
+
+        latest = df.iloc[-1]
+
+        close = float(
+            latest["Close"]
+        )
+
+        ma5 = float(
+            latest["MA5"]
+        )
+
+        ma20 = float(
+            latest["MA20"]
+        )
+
+        volume = float(
+            latest["Volume"]
+        )
+
+        vol5 = float(
+            latest["VOL5"]
+        )
+
+        high20 = float(
+            latest["HIGH20"]
+        )
+
+        rsi = float(
+            latest["RSI"]
+        )
+
+        macd = float(
+            latest["MACD"]
+        )
+
+        signal = float(
+            latest["SIGNAL"]
+        )
+
+        trend_ok = ma5 > ma20
+
+        volume_ok = (
+            volume >
+            vol5 * 1.5
+        )
+
+        breakout_ok = (
+            close >
+            high20
+        )
+
+        score = 0
+
+        if trend_ok:
+            score += 2
+
+        if volume_ok:
+            score += 2
+
+        if breakout_ok:
+            score += 2
+
+        if rsi > 50:
+            score += 2
+
+        if macd > signal:
+            score += 2
+
+        if close > ma20:
+            score += 2
+
+        stop_loss = round(
+            close * 0.99,
+            2
+        )
+
+        risk_per_share = (
+            close -
+            stop_loss
+        )
+
+        take_profit = round(
+            close +
+            risk_per_share *
+            TAKE_PROFIT_RATIO,
+            2
+        )
+
+        shares = 0
+
+        if risk_per_share > 0:
+
+            shares = int(
+                risk_money /
+                risk_per_share
+            )
+
+            shares = (
+                shares // 1000
+            ) * 1000
+
+        results.append({
+
+            "股票":
+            STOCK_NAMES.get(
+                symbol,
+                symbol
+            ),
+
+            "代號":
+            symbol,
+
+            "現價":
+            round(close, 2),
+
+            "RSI":
+            round(rsi, 2),
+
+            "MACD":
+            round(macd, 2),
+
+            "停損價":
+            stop_loss,
+
+            "停利價":
+            take_profit,
+
+            "建議股數":
+            shares,
+
+            "評分":
+            score
+        })
+
+    except Exception as e:
+
+        print(
+            symbol,
+            e
+        )
+
+# ====================================
+# 排序
+# ====================================
+
+results.sort(
+    key=lambda x:
+    x["評分"],
+    reverse=True
+)
+
+# ====================================
+# 存CSV
+# ====================================
+
+today = datetime.now().strftime(
+    "%Y-%m-%d"
+)
+
+with open(
+    "trade_log.csv",
+    "a",
+    newline="",
+    encoding="utf-8-sig"
+) as f:
+
+    writer = csv.writer(f)
+
+    for item in results:
+
+        writer.writerow([
+            today,
+            item["股票"],
+            item["評分"],
+            item["現價"]
+        ])
+
+# ====================================
+# 存SQLite
+# ====================================
+
+for item in results:
+
+    conn.execute(
+        """
+        INSERT INTO rankings
+        VALUES (?,?,?,?)
+        """,
+        (
+            today,
+            item["股票"],
+            item["評分"],
+            item["現價"]
+        )
+    )
+
+conn.commit()
+
+conn.close()
+
+# ====================================
+# Excel
+# ====================================
+
+os.makedirs(
+    "reports",
+    exist_ok=True
+)
+
+filename = os.path.join(
+    "reports",
+    today + ".xlsx"
+)
+
+pd.DataFrame(
+    results
+).to_excel(
+    filename,
+    index=False
+)
+
+# ====================================
+# TOP5
+# ====================================
+
+line_msg = "【台股當沖助手 TOP5】\n\n"
+
+for item in results[:5]:
+
+    line_msg += (
+        f"{item['股票']}\n"
+        f"評分:{item['評分']}/12\n"
+        f"現價:{item['現價']}\n"
+        f"RSI:{item['RSI']}\n"
+        f"停損:{item['停損價']}\n"
+        f"停利:{item['停利價']}\n\n"
+    )
+
+print("\n")
+print(line_msg)
+
+status = send_line_message(
+    line_msg
+)
+
+print(
+    "\nLINE狀態:",
+    status
+)
+
+print(
+    "\n報表:",
+    filename
+)
+
+show_statistics()
+
+input(
+    "\n按 Enter 結束..."
+)
