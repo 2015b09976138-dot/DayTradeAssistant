@@ -5,12 +5,49 @@ on:
     - cron: '55 0 * * *'
   workflow_dispatch:
 
+name: DayTrade Assistant
+
+on:
+  schedule:
+    - cron: '55 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
 jobs:
   run-stockbot:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Packages
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Stock Bot
+        env:
+          LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: |
+          python daytrade.py
+
+      - name: Commit Trade Log
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git add trade_log.csv
+          git commit -m "Update trade log" || echo "No changes to commit"
+
+          git push
 
     steps:
       - name: Checkout
