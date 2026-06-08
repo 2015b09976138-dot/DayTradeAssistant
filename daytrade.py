@@ -7,6 +7,60 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 import requests
 import yfinance as yf
+# ====================================
+# 美股情緒
+# ====================================
+
+def get_us_market_score():
+
+    try:
+
+        nvda = yf.Ticker("NVDA").history(period="5d")
+        nasdaq = yf.Ticker("^IXIC").history(period="5d")
+        sox = yf.Ticker("^SOX").history(period="5d")
+
+        nvda_change = (
+            (nvda["Close"].iloc[-1] /
+             nvda["Close"].iloc[-2]) - 1
+        ) * 100
+
+        nasdaq_change = (
+            (nasdaq["Close"].iloc[-1] /
+             nasdaq["Close"].iloc[-2]) - 1
+        ) * 100
+
+        sox_change = (
+            (sox["Close"].iloc[-1] /
+             sox["Close"].iloc[-2]) - 1
+        ) * 100
+
+        score = 0
+
+        if sox_change > 2:
+            score += 2
+        elif sox_change < -2:
+            score -= 2
+
+        if nvda_change > 3:
+            score += 2
+        elif nvda_change < -3:
+            score -= 2
+
+        if nasdaq_change > 1:
+            score += 1
+        elif nasdaq_change < -1:
+            score -= 1
+
+        return (
+            score,
+            round(nvda_change, 2),
+            round(nasdaq_change, 2),
+            round(sox_change, 2)
+        )
+
+    except:
+
+        return (0, 0, 0, 0)
 
 # ====================================
 # 基本設定
@@ -240,7 +294,9 @@ risk_money = (
 )
 
 results = []
-
+us_score, nvda_pct, nasdaq_pct, sox_pct = (
+    get_us_market_score()
+)
 print("=" * 60)
 print("台股當沖助手 v5.1")
 print("=" * 60)
@@ -448,7 +504,20 @@ for symbol in stocks:
             symbol,
             e
         )
+AI_STOCKS = [
+    "2330.TW",
+    "2454.TW",
+    "2382.TW",
+    "3231.TW",
+    "6669.TW",
+    "3017.TW",
+    "2376.TW",
+    "2383.TW",
+    "8996.TW"
+]
 
+if symbol in AI_STOCKS:
+    score += us_score
 # ====================================
 # 排序
 # ====================================
@@ -536,8 +605,11 @@ pd.DataFrame(
 # ====================================
 
 line_msg = (
-    f"【台股當沖助手 v6】\n"
+    f"【台股當沖助手 v6.5】\n"
     f"{today}\n\n"
+    f"NVDA {nvda_pct}%\n"
+    f"NASDAQ {nasdaq_pct}%\n"
+    f"SOX {sox_pct}%\n\n"
 )
 
 top_stocks = [
@@ -549,7 +621,7 @@ for idx, item in enumerate(top_stocks, start=1):
 
     line_msg += (
     f"{idx}. {item['股票']}\n"
-    f"評分:{item['評分']}/15\n"
+    f"評分:{item['評分']}/20\n"
     f"現價:{item['現價']}\n"
     f"RSI:{item['RSI']}\n"
     f"停損:{item['停損價']}\n"
