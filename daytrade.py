@@ -568,6 +568,4 @@ print(
 
 show_statistics()
 
-input(
-    "\n按 Enter 結束..."
-)
+print("\n完成")
