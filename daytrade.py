@@ -453,6 +453,7 @@ for symbol in stocks:
             print("macd =", macd)
             print("signal =", signal)
             print("score =", score)
+            print("最後日期 =", df.index[-1])
         stop_loss = round(
             close * 0.99,
             2
