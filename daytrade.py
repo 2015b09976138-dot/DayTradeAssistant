@@ -371,12 +371,11 @@ for symbol in stocks:
         latest = df.iloc[-1]
 
         close = float(
-        latest["Close"]
-       )
+            latest["Close"]
+        )
 
-# 超過35萬一張的不看
-       if close > 350:
-           continue
+        if close > 350:
+            continue
 
         ma5 = float(
             latest["MA5"]
