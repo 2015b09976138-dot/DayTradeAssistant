@@ -436,11 +436,13 @@ for symbol in stocks:
         if breakout_ok:
             score += 3
 
-        if rsi > 70:
+        if 60 <= rsi <= 75:
             score += 3
-        elif rsi > 60:
+
+        elif 75 < rsi <= 85:
             score += 2
-        elif rsi > 50:
+
+        elif rsi > 85:
             score += 1
 
         if macd > signal:
