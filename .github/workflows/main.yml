@@ -1,4 +1,0 @@
-name: Disabled
-
-on:
-  workflow_dispatch:
