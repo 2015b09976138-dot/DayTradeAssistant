@@ -10,7 +10,9 @@ import yfinance as yf
 # ====================================
 # 美股情緒
 # ====================================
-
+nvda_change = 0
+nasdaq_change = 0
+sox_change = 0
 def get_us_market_score():
 
     try:
@@ -635,9 +637,7 @@ pd.DataFrame(
 line_msg = (
     f"【台股當沖助手 v6.6】\n"
     f"{today}\n\n"
-    f"NVDA {nvda_change:.2f}%\n"
-    f"NASDAQ {nasdaq_change:.2f}%\n"
-    f"SOX {sox_change:.2f}%\n\n"
+    
 )
 
 for i, item in enumerate(results[:5], start=1):
