@@ -36,34 +36,17 @@ def get_us_market_score():
              sox["Close"].iloc[-2]) - 1
         ) * 100
 
-        score = 0
-
-        if sox_change > 2:
-            score += 2
-        elif sox_change < -2:
-            score -= 2
-
-        if nvda_change > 3:
-            score += 2
-        elif nvda_change < -3:
-            score -= 2
-
-        if nasdaq_change > 1:
-            score += 1
-        elif nasdaq_change < -1:
-            score -= 1
-
         return (
-            score,
-            round(nvda_change, 2),
-            round(nasdaq_change, 2),
-            round(sox_change, 2)
+            nvda_change,
+            nasdaq_change,
+            sox_change
         )
 
-    except:
+    except Exception as e:
 
-        return (0, 0, 0, 0)
+        print("美股資料錯誤:", e)
 
+        return (0, 0, 0)
 # ====================================
 # 基本設定
 # ====================================
