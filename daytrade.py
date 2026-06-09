@@ -48,23 +48,10 @@ def get_us_market_score():
             us_score += 1
 
         return (
-           us_score = 0
-
-        if nvda_change > 0:
-           us_score += 1
-
-        if nasdaq_change > 0:
-           us_score += 1
-
-        if sox_change > 0:
-           us_score += 1
-
-        return (
-    us_score,
-    nvda_change,
-    nasdaq_change,
-    sox_change
-)
+            us_score,
+            nvda_change,
+            nasdaq_change,
+            sox_change
         )
 
     except Exception as e:
@@ -77,6 +64,8 @@ def get_us_market_score():
             0,
             0
         )
+
+       
 # ====================================
 # 基本設定
 # ====================================
