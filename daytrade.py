@@ -379,8 +379,7 @@ for symbol in stocks:
             latest["Close"]
         )
 
-        if close > 350:
-            continue
+  
 
         ma5 = float(
             latest["MA5"]
