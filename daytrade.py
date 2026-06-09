@@ -633,28 +633,26 @@ pd.DataFrame(
 # ====================================
 
 line_msg = (
-    f"【台股當沖助手 v6.5】\n"
+    f"【台股當沖助手 v6.6】\n"
     f"{today}\n\n"
-    f"NVDA {nvda_pct}%\n"
-    f"NASDAQ {nasdaq_pct}%\n"
-    f"SOX {sox_pct}%\n\n"
+    f"NVDA {nvda_change:.2f}%\n"
+    f"NASDAQ {nasdaq_change:.2f}%\n"
+    f"SOX {sox_change:.2f}%\n\n"
 )
 
-top_stocks = [
-    x for x in results
-    if x["評分"] >= 9
-][:5]
+for i, item in enumerate(results[:5], start=1):
 
-for idx, item in enumerate(top_stocks, start=1):
+    stock_cost = int(item["現價"] * 1000)
 
     line_msg += (
-    f"{idx}. {item['股票']}\n"
-    f"評分:{item['評分']}/20\n"
-    f"現價:{item['現價']}\n"
-    f"RSI:{item['RSI']}\n"
-    f"停損:{item['停損價']}\n"
-    f"停利:{item['停利價']}\n\n"
-)
+        f"{i}. {item['股票']}\n"
+        f"評分:{item['評分']}/20\n"
+        f"現價:{item['現價']}\n"
+        f"一張成本:{stock_cost:,}\n"
+        f"RSI:{item['RSI']}\n"
+        f"停損:{item['停損價']}\n"
+        f"停利:{item['停利價']}\n\n"
+    )
 
 print("\n")
 print(line_msg)
