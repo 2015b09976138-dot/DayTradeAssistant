@@ -2,7 +2,7 @@ name: DayTrade Assistant
 
 on:
   schedule:
-    - cron: '36 4 * * *'
+    - cron: '30 14 * * *'
   workflow_dispatch:
 
 permissions:
