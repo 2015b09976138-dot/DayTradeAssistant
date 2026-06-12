@@ -579,7 +579,7 @@ with open(
 
     writer = csv.writer(f)
 
-    for item in results:
+    for item in results[:5]:
 
         writer.writerow([
             today,
