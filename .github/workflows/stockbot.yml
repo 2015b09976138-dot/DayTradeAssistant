@@ -30,7 +30,7 @@ jobs:
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
         run: |
-          daytrade (2).py
+          daytrade.py
 
       - name: Commit Trade Log
         run: |
