@@ -114,7 +114,17 @@ STOCK_NAMES = {
     "2408.TW": "南亞科",
     "2002.TW": "中鋼"
 }
-
+AI_STOCKS = [
+    "2330.TW",
+    "2454.TW",
+    "2382.TW",
+    "3231.TW",
+    "6669.TWO",
+    "3017.TW",
+    "2376.TW",
+    "2383.TW",
+    "8996.TWO"
+]
 # ====================================
 # LINE 推播
 # ====================================
@@ -219,10 +229,16 @@ def init_trade_log():
             writer = csv.writer(f)
 
             writer.writerow([
-                "日期",
-                "股票",
-                "評分",
-                "收盤價"
+                today,
+                item["股票"],
+                item["評分"],
+                item["現價"],
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
             ])
 
 # ====================================
@@ -307,7 +323,7 @@ us_score, nvda_pct, nasdaq_pct, sox_pct = (
     get_us_market_score()
 )
 print("=" * 60)
-print("台股當沖助手 v5.1")
+print("台股當沖助手 v6.7")
 print("=" * 60)
 
 for symbol in stocks:
@@ -451,22 +467,33 @@ for symbol in stocks:
 
         if macd > signal:
             score += 3
-        if symbol == "8996.TW":
-            print("========== 高力 ==========")
 
-            print(df.tail(5)[["Open","High","Low","Close","Volume"]])
+# AI股加權
+        if symbol in AI_STOCKS:
+            score += us_score
 
-            print("close =", close)
-            print("ma5 =", ma5)
-            print("ma20 =", ma20)
-            print("volume =", volume)
-            print("vol5 =", vol5)
-            print("high20 =", high20)
-            print("rsi =", rsi)
-            print("macd =", macd)
-            print("signal =", signal)
-            print("score =", score)
-            print("最後日期 =", df.index[-1])
+# 高力偵錯
+        if symbol == "8996.TWO":
+
+    print("========== 高力 ==========")
+
+    print(
+        df.tail(5)[
+            ["Open","High","Low","Close","Volume"]
+        ]
+    )
+
+    print("close =", close)
+    print("ma5 =", ma5)
+    print("ma20 =", ma20)
+    print("volume =", volume)
+    print("vol5 =", vol5)
+    print("high20 =", high20)
+    print("rsi =", rsi)
+    print("macd =", macd)
+    print("signal =", signal)
+    print("score =", score)
+    print("最後日期 =", df.index[-1])
         stop_loss = round(
             close * 0.99,
             2
@@ -536,20 +563,7 @@ for symbol in stocks:
             symbol,
             e
         )
-AI_STOCKS = [
-    "2330.TW",
-    "2454.TW",
-    "2382.TW",
-    "3231.TW",
-    "6669.TW",
-    "3017.TW",
-    "2376.TW",
-    "2383.TW",
-    "8996.TW"
-]
 
-if symbol in AI_STOCKS:
-    score += us_score
 # ====================================
 # 排序
 # ====================================
@@ -582,10 +596,16 @@ with open(
     for item in results[:5]:
 
         writer.writerow([
-            today,
-            item["股票"],
-            item["評分"],
-            item["現價"]
+            "日期",
+            "股票",
+            "評分",
+            "收盤價",
+            "隔日收盤價",
+            "隔日最高價",
+            "隔日最低價",
+            "隔日報酬率",
+            "最大漲幅",
+            "最大跌幅"
         ])
 
 # ====================================
@@ -637,7 +657,7 @@ pd.DataFrame(
 # ====================================
 
 line_msg = (
-    f"【台股當沖助手 v6.6】\n"
+    f"【台股當沖助手 v6.7】\n"
     f"{today}\n\n"
     
 )
