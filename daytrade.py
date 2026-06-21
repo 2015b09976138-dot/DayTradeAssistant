@@ -473,13 +473,13 @@ for symbol in stocks:
             score += us_score
 
 # 高力偵錯
-        if symbol == "8996.TWO":
+if symbol == "8996.TWO":
 
     print("========== 高力 ==========")
 
     print(
         df.tail(5)[
-            ["Open","High","Low","Close","Volume"]
+            ["Open", "High", "Low", "Close", "Volume"]
         ]
     )
 
